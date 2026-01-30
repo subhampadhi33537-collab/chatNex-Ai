@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ChatNex - Smart AI Chatbot</title>
+
+  <!-- SEO & Social tags -->
+  <meta name="description" content="ChatNex is a free AI chatbot for smart searching and conversations. Ask anything and get instant answers.">
+  <meta name="keywords" content="ChatNex, AI chatbot, smart search, free chatbot, conversational AI">
+  <meta name="author" content="Your Name">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="ChatNex - Smart AI Chatbot">
+  <meta property="og:description" content="ChatNex helps you search and chat instantly with AI.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourwebsite.com">
+  <meta property="og:image" content="https://yourwebsite.com/chatnex-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ChatNex - Smart AI Chatbot">
+  <meta name="twitter:description" content="ChatNex helps you search and chat instantly with AI.">
+  <meta name="twitter:image" content="https://yourwebsite.com/chatnex-preview.png">
+
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/mobile.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/sidebar-mobile.css">
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-container">
+      <img src="/static/icon/chatnex.png" alt="ChatNex Logo" class="loading-logo">
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar - Chat History -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
+        </button>
+      </div>
+      <button class="new-chat-btn" id="newChatBtn">
+        <span>+</span>
+        <span>New Chat</span>
+      </button>
+      <div class="chat-history" id="chatHistory">
+        <div class="chat-history-empty">No chat history yet</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header id="pageHeader">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+          </svg>
+        </button>
+        <h2>ChatNex</h2>
+      </header>
+
+      <div id="greeting" class="greeting">
+        <p>Hello! I am ChatNex. How can I help you today?</p>
+      </div>
+
+      <main>
+        <div id="chatbox" class="chatbox" role="log" aria-live="polite" aria-hidden="true">
+          <!-- messages will be injected here by JS -->
+        </div>
+      </main>
+
+      <!-- Input fixed at bottom -->
+      <div class="input-wrap" role="search" aria-label="Chat input">
+        <input id="userInput" type="text" placeholder="Type your message..." aria-label="Type your message" />
+        <button id="sendBtn" aria-label="Send message">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
