@@ -16,7 +16,8 @@ const newChatBtn = document.getElementById('newChatBtn');
 const chatHistory = document.getElementById('chatHistory');
 
 // ==== Backend URL ====
-const BACKEND_URL = "http://localhost:5000/chat";
+// Use relative path so the frontend calls the same host (works on Render)
+const BACKEND_URL = "/chat";
 
 // ==== Chat Storage ====
 const STORAGE_KEY = 'chatnex_chats';
