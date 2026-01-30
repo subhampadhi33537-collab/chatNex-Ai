@@ -28,92 +28,90 @@ chat_history = {}
 def home():
     return render_template('index.html')
 
-@app.route("/chat", methods=["POST"])
-def chat():
+def _extract_reply_from_response(resp):
     try:
-        data = request.get_json(force=True)
+        resp_json = resp.json()
+    except Exception:
+        resp_json = None
+
+    bot_reply = None
+    if isinstance(resp_json, dict):
+        choices = resp_json.get("choices")
+        if choices and isinstance(choices, list) and len(choices) > 0:
+            first = choices[0]
+            if isinstance(first, dict):
+                msg = first.get("message") or first.get("content") or first
+                if isinstance(msg, dict):
+                    content = msg.get("content")
+                    if isinstance(content, str):
+                        bot_reply = content
+                    elif isinstance(content, list):
+                        parts = []
+                        for p in content:
+                            if isinstance(p, dict):
+                                parts.append(p.get("text") or "")
+                            else:
+                                parts.append(str(p))
+                        bot_reply = "".join(parts)
+                elif isinstance(msg, str):
+                    bot_reply = msg
+        if not bot_reply:
+            bot_reply = resp_json.get("reply") or resp_json.get("text")
+
+    if not bot_reply:
+        bot_reply = resp.text or ""
+
+    return bot_reply
+
+
+def handle_chat_data(data):
+    try:
         message = data.get("message", "").strip()
         session_id = data.get("session_id", "default")
 
         if not message:
-            return jsonify({"error": "Empty message"}), 400
+            return {"error": "Empty message"}, 400
 
-        # Initialize history
         if session_id not in chat_history:
             chat_history[session_id] = []
 
-        # Add user message to session (use simple role/content shape)
         chat_history[session_id].append({"role": "user", "content": message})
 
-        payload = {
-            "model": MODEL_NAME,
-            "messages": chat_history[session_id]
-        }
-
-        headers = {
-            "Authorization": f"Bearer {GROQ_API_KEY}",
-            "Content-Type": "application/json"
-        }
+        payload = {"model": MODEL_NAME, "messages": chat_history[session_id]}
+        headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
 
         resp = requests.post(GROK_API_URL, headers=headers, json=payload, timeout=15)
-        try:
-            resp_json = resp.json()
-        except Exception:
-            resp_json = None
+        bot_reply = _extract_reply_from_response(resp)
 
-        # Extract reply robustly from possible response formats
-        bot_reply = None
-        if isinstance(resp_json, dict):
-            choices = resp_json.get("choices")
-            if choices and isinstance(choices, list) and len(choices) > 0:
-                first = choices[0]
-                # Newer chat responses often include message.content
-                if isinstance(first, dict):
-                    msg = first.get("message") or first.get("content") or first
-                    if isinstance(msg, dict):
-                        content = msg.get("content")
-                        if isinstance(content, str):
-                            bot_reply = content
-                        elif isinstance(content, list):
-                            parts = []
-                            for p in content:
-                                if isinstance(p, dict):
-                                    parts.append(p.get("text") or "")
-                                else:
-                                    parts.append(str(p))
-                            bot_reply = "".join(parts)
-                    elif isinstance(msg, str):
-                        bot_reply = msg
-                # fallback
-            if not bot_reply:
-                bot_reply = resp_json.get("reply") or resp_json.get("text")
-
-        if not bot_reply:
-            # Last fallback: raw response text
-            bot_reply = resp.text or ""
-
-        # Save assistant reply to history
         chat_history[session_id].append({"role": "assistant", "content": bot_reply})
 
-        return jsonify({"reply": bot_reply, "session_id": session_id})
+        return {"reply": bot_reply, "session_id": session_id}, 200
 
     except Exception as e:
         error_str = str(e)
-        print("❌ Gemini error:", e)
-        
-        # Handle quota exhausted with fallback response
+        print("❌ Chat processing error:", e)
         if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
             fallback_reply = "⏱️ API quota limit reached for today. Please:\n\n1. **Wait 24 hours** for the quota to reset.\nFor now, this is a limitation of the free tier."
-            chat_history[session_id].append({
-                "role": "model",
-                "parts": [{"text": fallback_reply}]
-            })
-            return jsonify({
-                "reply": fallback_reply,
-                "session_id": session_id
-            }), 200  # Return 200 so frontend doesn't show error
-        
-        return jsonify({"error": str(e)}), 500
+            try:
+                chat_history.setdefault(session_id, []).append({"role": "model", "parts": [{"text": fallback_reply}]})
+            except Exception:
+                pass
+            return {"reply": fallback_reply, "session_id": session_id}, 200
+        return {"error": str(e)}, 500
+
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json(force=True)
+    resp, status = handle_chat_data(data)
+    return jsonify(resp), status
+
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    data = request.get_json(force=True)
+    resp, status = handle_chat_data(data)
+    return jsonify(resp), status
 
 @app.route("/reset", methods=["POST"])
 def reset():

@@ -17,7 +17,8 @@ const chatHistory = document.getElementById('chatHistory');
 
 // ==== Backend URL ====
 // Use relative path so the frontend calls the same host (works on Render)
-const BACKEND_URL = "/chat";
+// Use relative path to Vercel serverless API
+const BACKEND_URL = "/api/chat";
 
 // ==== Chat Storage ====
 const STORAGE_KEY = 'chatnex_chats';
