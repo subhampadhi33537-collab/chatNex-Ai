@@ -1,4 +1,5 @@
 # ChatNex AI Assistant
+Built with Python, CSS, and AI-powered conversation flows
 
 <div align="center">
 
