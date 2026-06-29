@@ -319,7 +319,8 @@ Contributions are welcome! Feel free to:
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License**
+Live and intelligent conversations powered by AI.
 
 ---
 
@@ -338,5 +339,6 @@ Have questions? Need help?
 ⭐ If you found this helpful, please star the repo!
 
 </div>
-#   c h a t N e x - A i  
+#   c h a t N e x - A i 
+ 
  
